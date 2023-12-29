@@ -1,42 +1,108 @@
+// why this is not showing anything?:
 const canvas = document.querySelector("canvas");
-if (canvas) {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
+const c = canvas!.getContext("2d");
+let coords: { x: number; y: number } = {
+  x: 0,
+  y: 0,
+};
 
-  const c = canvas?.getContext("2d");
-  // c!.fillStyle = "blue";
-  // // c?.fillRect(100, 100, 100, 100);
-  // // for (let i = 0; i < 10; i++) {
-  // //   c?.fillRect(100 * i, 100 * i, 100, 100);
-  // // }
-  // c?.beginPath();
-  // c?.moveTo(100, 100);
-  // c?.lineTo(300, 400);
-  // c?.lineTo(400, 500);
-  // c!.strokeStyle = "red";
-  // // c?.stroke();
-  // for (let i = 1; i < 500; i += 1) {
-  //   c?.beginPath();
-  //   // c!.fillStyle = "rgba(255, 0, 0, .5)";
-  //   let x = Math.random() * window.innerWidth;
-  //   let y = Math.random() * window.innerHeight;
-  //   let o = Math.random() * 1;
-  //   c!.fillStyle = `rgba(${(i * 100 + x - y) % 255}, ${(i * 10 + x) % 255}, ${
-  //     (i * 5 + y) % 255
-  //   }, ${o})`;
-  //   c?.fill();
-  // }
-  animate(c);
-}
-let x = 200;
-function animate(c: CanvasRenderingContext2D | null) {
-  if (x === 400) {
-    return;
+const MAX_RADIUS = 40;
+// const MIN_RADIUS = 2;
+
+const colors = [
+  "#0abde3",
+  "#feca57",
+  "#576574",
+  "#341f97",
+  "#54a0ff",
+  "#ee5253",
+];
+
+class Circle {
+  public color: string;
+  public minRadius: number;
+  constructor(
+    public x: number,
+    public y: number,
+    public dx: number,
+    public dy: number,
+    public radius: number
+  ) {
+    this.color = colors[Math.floor(Math.random() * colors.length)];
+    this.minRadius = this.radius;
   }
+  public draw() {
+    c?.beginPath();
+    c?.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
+    c!.fillStyle = this.color;
+    c?.fill();
+  }
+  public update() {
+    if (this.x + this.radius >= innerWidth || this.x - this.radius <= 0) {
+      this.dx = -this.dx;
+    }
+    if (this.y + this.radius >= innerHeight || this.y - this.radius <= 0) {
+      this.dy = -this.dy;
+    }
+    this.x += this.dx;
+    this.y += this.dy;
+    if (
+      coords.x - this.x < 50 &&
+      coords.x - this.x > -50 &&
+      coords.y - this.y < 50 &&
+      coords.y - this.y > -50
+    ) {
+      if (this.radius <= MAX_RADIUS) {
+        this.radius += 1;
+      }
+    } else {
+      if (this.radius > this.minRadius) {
+        this.radius -= 1;
+      }
+    }
+    this.draw();
+  }
+}
+document.addEventListener("DOMContentLoaded", function () {
+  // Your existing code here
+  if (canvas) {
+    canvas.width = innerWidth;
+    canvas.height = innerHeight;
+  }
+  animate();
+  // var c = canvas.getContext("2d");
+  // ... rest of your code ...
+});
+window.addEventListener("resize", () => {
+  canvas!.width = innerWidth;
+  canvas!.height = innerHeight;
+  init();
+});
+
+window.addEventListener("mousemove", ({ x, y }) => {
+  coords = { x, y };
+});
+const init = () => {
+  circles = [];
+  for (let i = 0; i < 800; i++) {
+    let r = Math.random() * 3 + 1;
+    let x = Math.random() * (innerWidth - r * 2) + r;
+    let y = Math.random() * (innerHeight - r * 2) + r;
+    let dx = (Math.random() - 0.5) * 8;
+    let dy = (Math.random() - 0.5) * 8;
+    circles.push(new Circle(x, y, dx, dy, r));
+  }
+};
+
+let circles: Circle[] = [];
+init();
+
+// const circle = new Circle(200, 200, 2, 3, 30);
+
+function animate() {
   c?.clearRect(0, 0, innerWidth, innerHeight);
-  c?.beginPath();
-  c?.arc(x, 200, 30, 0, 2 * Math.PI * 2);
-  c?.stroke();
-  x += 1;
-  requestAnimationFrame(() => animate(c));
+  circles.forEach((circle) => {
+    circle.update();
+  });
+  requestAnimationFrame(animate);
 }
