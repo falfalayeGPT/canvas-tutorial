@@ -116,103 +116,28 @@ window.addEventListener("mousemove", ({ x, y }) => {
   mouse = { x, y };
 });
 
-class Particle {
-  public velocity: {
-    x: number;
-    y: number;
-  };
-  public opacity: number;
-  public mass: number;
-  constructor(
-    public x: number,
-    public y: number,
-    public radius: number,
-    public color: string
-  ) {
-    this.velocity = {
-      x: (Math.random() - 0.5) * 5,
-      y: (Math.random() - 0.5) * 5,
-    };
-    this.mass = 1;
-    this.opacity = 0;
-  }
-  public draw() {
-    c?.beginPath();
-    c?.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-    c!.strokeStyle = this.color;
-    c?.save();
-    c!.globalAlpha = this.opacity;
-    c!.fillStyle = this.color;
-    c?.fill();
-    c?.restore();
-    c?.stroke();
-    c?.closePath();
-  }
-  public update(particles: Particle[]) {
-    for (let p of particles) {
-      if (this === p) {
-        continue;
-      }
-      const d = getDistance(this.x, this.y, p.x, p.y);
-      if (d - p.radius * 2 < 0) {
-        resolveCollision(this, p);
-      }
-      const dist = getDistance(mouse.x, mouse.y, this.x, this.y);
-      if (dist < 120 && this.opacity < 0.2) {
-        this.opacity += 0.02;
-      } else if (this.opacity > 0) {
-        this.opacity -= 0.02;
-        this.opacity = Math.max(0, this.opacity);
-      }
-    }
-    if (this.x - this.radius <= 0 || this.x + this.radius >= innerWidth) {
-      this.velocity.x = -this.velocity.x;
-    }
-    if (this.y - this.radius <= 0 || this.y + this.radius >= innerHeight) {
-      this.velocity.y = -this.velocity.y;
-    }
-    this.x += this.velocity.x;
-    this.y += this.velocity.y;
-    this.draw();
-  }
-}
-
-let particles: Particle[] = [];
-
-function init() {
-  for (let i = 0; i < 150; i += 1) {
-    const r = 20;
-    let x = randomIntFromRange(r, innerWidth - r);
-    let y = randomIntFromRange(r, innerHeight - r);
-    if (i >= 1) {
-      for (let j = 0; j < particles.length; j += 1) {
-        const d = getDistance(x, y, particles[j].x, particles[j].y);
-        if (d - particles[j].radius * 2 < 0) {
-          x = randomIntFromRange(r, innerWidth - r);
-          y = randomIntFromRange(r, innerHeight - r);
-          j = -1;
-        }
-      }
-    }
-    const color = colors[Math.floor(Math.random() * colors.length)];
-    particles.push(new Particle(x, y, r, color));
-  }
-}
-
-function getDistance(x1: number, y1: number, x2: number, y2: number) {
-  let xDistance: number = x2 - x1;
-  let yDistance: number = y2 - y1;
-  return Math.sqrt(Math.pow(xDistance, 2) + Math.pow(yDistance, 2));
-}
-
-init();
-
-animate();
+function init() {}
 
 function animate() {
   requestAnimationFrame(animate);
-  c?.clearRect(0, 0, canvas!.width, canvas!.height);
-  particles.forEach((particle) => {
-    particle.update(particles);
-  });
+  c!.fillStyle = colors[3];
+  c?.fillRect(0, 0, innerWidth, innerHeight);
+  // red
+  c!.fillStyle = colors[7];
+  const { x, y } = mouse;
+  c?.fillRect(x, y, 100, 100);
+  if (
+    x + 100 >= innerWidth / 2 - 50 &&
+    x <= innerWidth / 2 - 50 + 100 &&
+    y + 100 >= innerHeight / 2 - 50 &&
+    y <= innerHeight / 2 - 50 + 100
+  ) {
+    console.log("coliding...");
+  }
+  // blue
+  c!.fillStyle = colors[6];
+  c?.fillRect(innerWidth / 2 - 50, innerHeight / 2 - 50, 100, 100);
 }
+
+animate();
+init();
