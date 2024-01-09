@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "module": "commonjs",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "moduleResolution": "node",
+    "declaration": false,
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "paths": {
+      "*": ["node_modules/*"]
+    }
+  },
+  "include": [
+    "./index.ts",
+    "node_modules/@chriscourses/perlin-noise/index.js" // Add the path to perlin-noise
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}
