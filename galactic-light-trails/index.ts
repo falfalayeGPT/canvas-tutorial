@@ -22,6 +22,8 @@ class Particle {
   public draw() {
     c?.beginPath();
     c?.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
+    c!.shadowColor = this.color;
+    c!.shadowBlur = 15;
     c!.fillStyle = this.color;
     c?.fill();
   }
@@ -43,17 +45,50 @@ window.addEventListener("resize", () => {
   init();
 });
 
+let mousedown = false;
+
+addEventListener("mousedown", () => {
+  mousedown = true;
+});
+addEventListener("mouseup", () => {
+  mousedown = false;
+});
+oncontextmenu = (e) => {
+  e.preventDefault();
+};
+
 window.addEventListener("mousemove", ({ x, y }) => {
   coords = { x, y };
 });
-const init = () => {};
+const init = () => {
+  const h = canvas!.height + 300,
+    w = canvas!.width + 300;
+  for (let i = 0; i < 100; i += 1) {
+    const x = Math.random() * w - innerWidth / 2;
+    const y = Math.random() * h - innerHeight / 2;
+    particles.push(new Particle(x, y, 2 * Math.random()));
+  }
+};
 
 let particles: Particle[] = [];
+let inc = 0;
+let alpha = 1;
 
 function animate() {
-  c?.clearRect(0, 0, innerWidth, innerHeight);
+  c!.fillStyle = `rgba(10, 10, 10, ${alpha})`;
+  c?.fillRect(0, 0, innerWidth, innerHeight);
+  c?.save();
+  c?.translate(innerWidth / 2, innerHeight / 2);
+  c?.rotate(inc);
   particles.forEach((particle) => {
     particle.update();
   });
+  c?.restore();
   requestAnimationFrame(animate);
+  inc += 0.005;
+  if (mousedown && alpha >= 0.1) {
+    alpha -= 0.01;
+  } else if (!mousedown && alpha < 1) {
+    alpha += 0.01;
+  }
 }
